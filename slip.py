@@ -51,7 +51,7 @@ class Enlace:
         # TODO: Preencha aqui com o código para enviar o datagrama pela linha
         # serial, fazendo corretamente a delimitação de quadros e o escape de
         # sequências especiais, de acordo com o protocolo CamadaEnlace (RFC 1055).
-        self.linha_serial.enviar(b"\xC0" + datagrama + b"\xC0")
+        self.linha_serial.enviar(b"\xc0" + self.escape_seq_datagram(datagrama) + b"\xc0")
         pass
 
     def __raw_recv(self, dados):
@@ -63,3 +63,14 @@ class Enlace:
         # apenas pedaços de um quadro, ou um pedaço de quadro seguido de um
         # pedaço de outro, ou vários quadros de uma vez só.
         pass
+
+    def escape_seq_datagram(self, datagrama):
+        
+        # Primeiro escapamos o byte 0xDB que serve para escapar 0xC0
+        datagrama_tratado_1 = datagrama.replace(b"\xdb", b"\xdb\xdd")
+
+        # Depois escapamos o byte 0xC0 dentro do datagrama para não haver ambiguidade
+        datagrama_tratado_final = datagrama_tratado_1.replace(b"\xc0", b"\xdb\xdc")
+
+        return datagrama_tratado_final
+
